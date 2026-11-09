@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#071b3b"><meta name="robots" content="noindex,nofollow"><title>NGN Administration</title><link rel="stylesheet" href="styles.css"></head>
+<body class="admin-body">
+<header class="admin-top"><div class="container"><a class="brand" href="index.html" style="color:#fff"><span class="brand-name" style="color:#fff">NEW GENERATION NETWORK<span class="brand-tag" style="color:#e9b94f">ADMINISTRATION</span></span></a><a href="index.html" style="color:#e9b94f;text-decoration:none;font-weight:750">View website ↗</a></div></header>
+<main class="admin-shell">
+  <section class="admin-login" id="loginPanel">
+    <span class="section-kicker">Authorised administrators only</span>
+    <h1>NGN Administration</h1>
+    <p class="lead">Sign in with an existing NGN administrator email and password.</p>
+    <form class="admin-form" id="loginForm">
+      <label class="full">Email address<input type="email" name="email" autocomplete="username" required></label>
+      <label class="full">Password<input type="password" name="password" autocomplete="current-password" required></label>
+      <div class="admin-actions full"><button class="button button-blue" type="submit">Sign in</button><span class="admin-status" id="loginStatus" role="status"></span></div>
+    </form>
+    <p class="notice">There is no public sign-up on this page. Only accounts already approved in NGN's administrator list can enter.</p>
+  </section>
+
+  <section id="adminWorkspace" hidden>
+    <div class="admin-layout">
+      <aside class="admin-sidebar" aria-label="Administration sections">
+        <button class="active" data-tab="overview">Overview</button>
+        <button data-tab="teachings">Teachings &amp; Media</button>
+        <button data-tab="devotionals">Devotionals</button>
+        <button data-tab="announcements">Announcements</button>
+        <button data-tab="events">Events</button>
+        <button id="signOutBtn">Sign out</button>
+      </aside>
+      <div class="admin-main">
+        <section class="admin-panel" data-panel="overview">
+          <span class="section-kicker">NGN content control</span><h2>Administration overview</h2>
+          <p class="lead">Manage the public content shared across the NGN website and connected app features.</p>
+          <div class="admin-stats">
+            <div class="admin-stat"><strong id="countTeachings">—</strong><span>Teachings</span></div>
+            <div class="admin-stat"><strong id="countDevotionals">—</strong><span>Devotionals</span></div>
+            <div class="admin-stat"><strong id="countAnnouncements">—</strong><span>Announcements</span></div>
+            <div class="admin-stat"><strong id="countEvents">—</strong><span>Events</span></div>
+          </div>
+          <div class="admin-note">Publishing content here updates the shared NGN database. The public website reads published items; the Android app continues using its existing app-specific and offline systems.</div>
+        </section>
+
+        <section class="admin-panel" data-panel="teachings" hidden>
+          <span class="section-kicker">Media library</span><h2>Publish a teaching</h2>
+          <p class="lead">Add a video, audio message, PDF, or a link to an existing media resource.</p>
+          <form class="admin-form" id="teachingForm">
+            <label>Teaching title<input name="title" required maxlength="180"></label>
+            <label>Speaker<input name="speaker" value="N.G.N. Team" maxlength="120"></label>
+            <label class="full">Description<textarea name="description" maxlength="3000"></textarea></label>
+            <label>Content type<select name="content_type"><option value="video">Video</option><option value="audio">Audio</option><option value="pdf">PDF / Document</option><option value="link">External link</option></select></label>
+            <label>Series name (optional)<input name="series_name" maxlength="160"></label>
+            <label class="full">Upload media file (optional)<input type="file" name="media_file" accept="video/*,audio/*,application/pdf"></label>
+            <label class="full">Or paste a media / YouTube URL<input type="url" name="media_link" placeholder="https://…"></label>
+            <label class="checkline full"><input type="checkbox" name="publish" checked> Publish immediately</label>
+            <div class="admin-actions full"><button class="button button-blue" type="submit">Save teaching</button><span class="admin-status" id="teachingStatus" role="status"></span></div>
+          </form>
+          <h3 style="margin-top:34px">Existing teachings</h3><div class="admin-list" id="teachingList"></div>
+        </section>
+
+        <section class="admin-panel" data-panel="devotionals" hidden>
+          <span class="section-kicker">Daily spiritual growth</span><h2>Publish a devotional</h2>
+          <form class="admin-form" id="devotionalForm">
+            <label>Title<input name="title" required maxlength="180"></label><label>Theme<input name="theme" maxlength="180"></label>
+            <label>Bible reference<input name="bible_reference" maxlength="120" placeholder="e.g. Psalm 23:1"></label>
+            <label>Memory verse<input name="memory_verse" maxlength="500"></label>
+            <label class="full">Message<textarea name="message" required maxlength="12000"></textarea></label>
+            <label class="full">Life application<textarea name="life_application" maxlength="5000"></textarea></label>
+            <label class="full">Prayer<textarea name="prayer" maxlength="5000"></textarea></label>
+            <label class="checkline full"><input type="checkbox" name="publish" checked> Publish immediately</label>
+            <div class="admin-actions full"><button class="button button-blue" type="submit">Save devotional</button><span class="admin-status" id="devotionalStatus" role="status"></span></div>
+          </form>
+        </section>
+
+        <section class="admin-panel" data-panel="announcements" hidden>
+          <span class="section-kicker">Ministry communication</span><h2>Publish an announcement</h2>
+          <form class="admin-form" id="announcementForm">
+            <label class="full">Announcement title<input name="title" required maxlength="180"></label>
+            <label class="full">Message<textarea name="body" required maxlength="6000"></textarea></label>
+            <label class="checkline full"><input type="checkbox" name="publish" checked> Publish immediately</label>
+            <div class="admin-actions full"><button class="button button-blue" type="submit">Save announcement</button><span class="admin-status" id="announcementStatus" role="status"></span></div>
+          </form>
+        </section>
+
+        <section class="admin-panel" data-panel="events" hidden>
+          <span class="section-kicker">Programmes &amp; gatherings</span><h2>Publish an event</h2>
+          <form class="admin-form" id="eventForm">
+            <label>Event title<input name="title" required maxlength="180"></label>
+            <label>Date and time<input type="datetime-local" name="starts_at" required></label>
+            <label class="full">Description<textarea name="description" maxlength="5000"></textarea></label>
+            <label class="full">Venue / meeting location<input name="venue" maxlength="240"></label>
+            <label class="checkline full"><input type="checkbox" name="publish" checked> Publish immediately</label>
+            <div class="admin-actions full"><button class="button button-blue" type="submit">Save event</button><span class="admin-status" id="eventStatus" role="status"></span></div>
+          </form>
+        </section>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+<script src="admin.js"></script>
+</body></html>
