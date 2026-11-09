@@ -1,33 +1,37 @@
 # New Generation Network — Official Website
 
-The official public website for New Generation Network (N.G.N.).
+This repository contains the public-facing NGN ministry website. It is a conventional multi-page website, separate from the NGN Android application.
 
-**Vision:** Raising a righteous generation for Christ.
+## Public pages
 
-**Mission:** To spread the Gospel of Jesus Christ, inspire lives, strengthen faith, and bring hope to people around the world through impactful Christian content.
+- Home
+- About NGN
+- Teachings
+- Events & Updates
+- NGN Android App
+- Contact
 
-## Website
+## Technology
 
-This is a responsive, static website built with HTML, CSS, and JavaScript. It is designed for GitHub Pages hosting and does not require a paid hosting plan or a backend.
+- HTML, CSS, and vanilla JavaScript
+- Firebase Hosting configuration (firebase.json)
 
-## Publish with GitHub Pages
+## Local preview
 
-1. Open this repository's **Settings**.
-2. Select **Pages** in the left menu.
-3. Under **Build and deployment**, choose **Deploy from a branch**.
-4. Select branch **main** and folder **/(root)**, then save.
-5. GitHub will provide the published website address after deployment completes.
+Open index.html in a browser, or serve this folder using any local static web server.
 
-## NGN Android app
+## Firebase deployment
 
-The website checks the public releases of the separate NGN Android app repository and offers the latest APK when a non-draft, non-prerelease release containing an APK is available.
+1. Install the Firebase CLI.
+2. Sign in to Firebase.
+3. Run firebase use --add and select the confirmed NGN Firebase project.
+4. Run firebase deploy --only hosting.
 
-App repository: https://github.com/newgenerationnetwork617-ops/New-Generation-Network-
+The Firebase project alias is intentionally not committed until the correct NGN Firebase project is confirmed.
 
-## Official ministry page
+## Project boundaries
 
-https://ngn-official.wordpress.com/
-
-## Editing
-
-Update `index.html` to change website text, styles, navigation, or links. This repository is separate from the NGN Android app repository.
+- The website does not imitate the NGN Android app interface.
+- The Android APK remains a separate product and is linked from the website.
+- Teaching links currently point to published NGN media already present in the content system.
+- Direct live database rendering and the protected administration dashboard are the next integration stages.
