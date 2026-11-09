@@ -22,7 +22,7 @@ a{color:inherit}
 .main-nav a:hover,.main-nav a[aria-current=page]{color:var(--blue)}
 .main-nav .nav-button{padding:11px 18px;border-radius:999px;background:var(--gold);color:#14233a}
 .menu-toggle{display:none;border:0;background:none;color:var(--navy);font-size:1.7rem;padding:8px;cursor:pointer}
-.hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:linear-gradient(115deg,rgba(4,18,42,.97),rgba(11,43,83,.92)),url('assets/images/hero-worship.jpg') center/cover;padding:112px 0 104px}
+.hero{position:relative;isolation:isolate;overflow:hidden;color:#fff;background:linear-gradient(115deg,rgba(4,18,42,.97),rgba(11,43,83,.92));padding:112px 0 104px}
 .hero:after{content:"";position:absolute;z-index:-1;width:540px;height:540px;border:1px solid #ffffff22;border-radius:50%;right:-160px;bottom:-330px;box-shadow:0 0 0 55px #ffffff08,0 0 0 110px #ffffff06}
 .hero-content{max-width:790px}
 .eyebrow,.section-kicker{display:inline-block;color:var(--gold);font-size:.76rem;letter-spacing:.19em;text-transform:uppercase;font-weight:850}
