@@ -106,7 +106,8 @@
         const { error: uploadError } = await db.storage.from("ngn-media").upload(path, file, { contentType: file.type, upsert: false });
         if (uploadError) throw uploadError;
         const publicUrl = db.storage.from("ngn-media").getPublicUrl(path).data.publicUrl;
-        if (file.type.startsWith("audio/")) audioUrl = publicUrl;\n        else mediaUrl = publicUrl;
+        if (file.type.startsWith("audio/")) audioUrl = publicUrl;
+        else mediaUrl = publicUrl;
       } else if (values.media_link) {
         const parsed = new URL(values.media_link);
         if (!["https:", "http:"].includes(parsed.protocol)) throw new Error("Please enter a valid http or https media link.");
