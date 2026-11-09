@@ -1,0 +1,55 @@
+name: NGN Website Checks
+
+on:
+  push:
+    branches:
+      - ngn-website-upgrade
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Check JavaScript syntax
+        run: |
+          node --check script.js
+          node --check content.js
+          node --check admin.js
+          node --check supabase-config.js
+      - name: Validate Firebase configuration
+        run: node -e "JSON.parse(require('fs').readFileSync('firebase.json','utf8'))"
+      - name: Check website page links and shared assets
+        run: |
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          pages = ['index.html','about.html','teachings.html','events.html','app.html','contact.html','admin.html','404.html']
+          class Check(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.refs=[]
+              def handle_starttag(self, tag, attrs):
+                  attrs=dict(attrs)
+                  for key in ('href','src'):
+                      value=attrs.get(key,'')
+                      if value and not value.startswith(('http://','https://','mailto:','#','data:','javascript:')):
+                          self.refs.append(value.split('#')[0].split('?')[0])
+          failures=[]
+          for page in pages:
+              parser=Check(); parser.feed(Path(page).read_text(encoding='utf-8'))
+              for ref in parser.refs:
+                  if ref and not Path(ref).exists():
+                      failures.append(f'{page}: missing {ref}')
+          for asset in ('styles.css','script.js','supabase-config.js','content.js','admin.js'):
+              if not Path(asset).exists(): failures.append(f'missing shared asset {asset}')
+          if failures:
+              print('\n'.join(failures)); raise SystemExit(1)
+          print('Website pages and local assets passed basic checks.')
+          PY
