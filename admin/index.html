@@ -15,7 +15,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.shell{min-heigh
 <div id="loginView" class="login-wrap"><div class="login-card">
 <div class="brand">NEW GENERATION NETWORK<small>WEBSITE ADMINISTRATION</small></div>
 <h1>Welcome back.</h1><p class="muted">Sign in with your existing NGN administrator account to manage the official website.</p>
-<button class="btn gold full" id="googleLoginBtn" type="button">Continue with Google</button><div class="error" id="loginError"></div>
+<form id="passwordLoginForm"><div class="field"><label for="adminPassword">Admin password</label><input id="adminPassword" name="password" type="password" autocomplete="current-password" placeholder="Paste your admin password" required></div><button class="btn gold full" id="passwordLoginBtn" type="submit">Enter admin dashboard</button></form><div class="error" id="loginError"></div>
 <p class="muted" style="font-size:12px;margin-top:20px">Private administrator access · NGN Official Website</p>
 </div></div>
 <div id="appView" class="app">
@@ -55,23 +55,26 @@ function publicUrl(path){return supabase.storage.from(BUCKET).getPublicUrl(path)
 async function verifyAdmin(user){const client=await getSupabase();const {data,error}=await client.from('admin_members').select('user_id').eq('user_id',user.id).maybeSingle();if(error)throw error;return !!data;}
 async function showApp(user){if(!(await verifyAdmin(user))){await supabase.auth.signOut();$('loginError').textContent='This account is not authorised for NGN administration.';return;}currentUser=user;$('loginView').style.display='none';$('appView').style.display='block';await renderTab('overview');}
 async function boot(){try{const client=await getSupabase();const {data:{user},error}=await client.auth.getUser();if(error)throw error;if(user)await showApp(user);}catch(err){$('loginError').textContent='Admin page is ready, but its secure connection could not start: '+(err?.message||'Check your internet connection, then try again.');}}
-window.ngnAdminGoogleLogin=async function(){
- const btn=$('googleLoginBtn'),errorBox=$('loginError');
+$('passwordLoginForm').addEventListener('submit',async function(event){
+ event.preventDefault();
+ const btn=$('passwordLoginBtn'),errorBox=$('loginError'),password=$('adminPassword').value;
  if(btn.disabled)return;
- btn.disabled=true;errorBox.textContent='Opening Google sign-in…';
+ btn.disabled=true;btn.textContent='Signing in…';errorBox.textContent='Checking password…';
  try{
   const client=await getSupabase();
-  const {error}=await client.auth.signInWithOAuth({
-   provider:'google',
-   options:{redirectTo:window.location.origin+'/admin/'}
+  const {data,error}=await client.auth.signInWithPassword({
+   email:'newgenerationnetwork617@gmail.com',
+   password:password
   });
   if(error)throw error;
+  if(!data.user)throw new Error('Sign-in did not return an administrator account.');
+  await showApp(data.user);
  }catch(err){
-  errorBox.textContent='Google sign-in could not start: '+(err&&err.message?err.message:'Please try again.');
-  btn.disabled=false;
+  errorBox.textContent='Could not sign in: '+(err&&err.message?err.message:'Please check the password and try again.');
+ }finally{
+  btn.disabled=false;btn.textContent='Enter admin dashboard';
  }
-};
-$('googleLoginBtn').addEventListener('click',window.ngnAdminGoogleLogin);
+});
 $('signOutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.reload();});
 document.querySelectorAll('.nav-btn[data-tab]').forEach(b=>b.addEventListener('click',()=>renderTab(b.dataset.tab)));
 async function count(table){const {count,error}=await supabase.from(table).select('*',{count:'exact',head:true});return error?0:(count||0);}
