@@ -15,7 +15,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.shell{min-heigh
 <div id="loginView" class="login-wrap"><div class="login-card">
 <div class="brand">NEW GENERATION NETWORK<small>WEBSITE ADMINISTRATION</small></div>
 <h1>Welcome back.</h1><p class="muted">Sign in with your existing NGN administrator account to manage the official website.</p>
-<form id="loginForm"><div class="field"><label for="email">Administrator email</label><input id="email" type="email" autocomplete="username" value="newgenerationnetwork617@gmail.com" required></div><div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div><button class="btn gold full" id="loginBtn">Sign in to dashboard</button><div class="error" id="loginError"></div></form>
+<form id="loginForm" onsubmit="return false;"><div class="field"><label for="email">Administrator email</label><input id="email" type="email" autocomplete="username" value="newgenerationnetwork617@gmail.com" required></div><div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div><button class="btn gold full" id="loginBtn">Sign in to dashboard</button><div class="error" id="loginError"></div></form>
 <p class="muted" style="font-size:12px;margin-top:20px">Private administrator access · NGN Official Website</p>
 </div></div>
 <div id="appView" class="app">
@@ -30,10 +30,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.shell{min-heigh
 <main class="main"><div class="topbar"><div><h1 id="pageTitle">Overview</h1><p>Manage what visitors see on the NGN official website.</p></div><a class="btn ghost" href="/" target="_blank" rel="noopener">View website ↗</a></div><div id="content"></div></main>
 </div>
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm';
 const SUPABASE_URL='https://nlhjxoevyatvxstxgnhs.supabase.co';
 const SUPABASE_KEY='sb_publishable_QiReFPxygdWtOlRy5Eol6Q_uuubGD7j';
-const supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+let supabase;
+async function getSupabase(){
+ if(supabase)return supabase;
+ const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm');
+ supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+ return supabase;
+}
 const BUCKET='ngn-website-media';
 const configs={
  app:{title:'App releases',table:'website_app_releases',fields:[['version','Version number','text',true],['release_notes','Release notes','textarea'],['apk','APK file (up to 50 MB)','file'],['apk_url','APK download link (GitHub Release or Google Drive)','url']],fileField:'apk',fileColumn:'apk_path',fileNameColumn:'apk_file_name',accept:'.apk,application/vnd.android.package-archive',publishLabel:'Publish release',summary:r=>'Version '+r.version+' · '+(r.apk_file_name||(r.apk_url?'External APK link':'APK'))},
@@ -46,10 +51,28 @@ let activeTab='overview',currentUser=null;
 const $=id=>document.getElementById(id);
 function safe(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function publicUrl(path){return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;}
-async function verifyAdmin(user){const {data,error}=await supabase.from('admin_members').select('user_id').eq('user_id',user.id).maybeSingle();return !error&&!!data;}
+async function verifyAdmin(user){const client=await getSupabase();const {data,error}=await client.from('admin_members').select('user_id').eq('user_id',user.id).maybeSingle();if(error)throw error;return !!data;}
 async function showApp(user){if(!(await verifyAdmin(user))){await supabase.auth.signOut();$('loginError').textContent='This account is not authorised for NGN administration.';return;}currentUser=user;$('loginView').style.display='none';$('appView').style.display='block';await renderTab('overview');}
-async function boot(){const {data:{user}}=await supabase.auth.getUser();if(user)await showApp(user);}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('loginError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('loginError').textContent=error.message;return;}await showApp(data.user);});
+async function boot(){try{const client=await getSupabase();const {data:{user},error}=await client.auth.getUser();if(error)throw error;if(user)await showApp(user);}catch(err){$('loginError').textContent='Admin page is ready, but its secure connection could not start: '+(err?.message||'Check your internet connection, then try again.');}}
+$('loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const btn=$('loginBtn'),errorBox=$('loginError');
+ if(btn.disabled)return;
+ btn.disabled=true;errorBox.textContent='Connecting securely…';
+ try{
+  const client=await getSupabase();
+  errorBox.textContent='Checking administrator sign-in…';
+  const {data,error}=await client.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
+  if(error)throw error;
+  if(!data.user)throw new Error('Sign-in did not return an administrator session. Please try again.');
+  errorBox.textContent='Verifying administrator access…';
+  await showApp(data.user);
+ }catch(err){
+  errorBox.textContent='Sign-in could not be completed: '+(err?.message||'Please check your connection and try again.');
+ }finally{
+  btn.disabled=false;
+ }
+});
 $('signOutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.reload();});
 document.querySelectorAll('.nav-btn[data-tab]').forEach(b=>b.addEventListener('click',()=>renderTab(b.dataset.tab)));
 async function count(table){const {count,error}=await supabase.from(table).select('*',{count:'exact',head:true});return error?0:(count||0);}
