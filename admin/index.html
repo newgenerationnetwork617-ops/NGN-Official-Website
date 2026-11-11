@@ -15,7 +15,7 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.shell{min-heigh
 <div id="loginView" class="login-wrap"><div class="login-card">
 <div class="brand">NEW GENERATION NETWORK<small>WEBSITE ADMINISTRATION</small></div>
 <h1>Welcome back.</h1><p class="muted">Sign in with your existing NGN administrator account to manage the official website.</p>
-<button class="btn gold full" id="googleLoginBtn" type="button" onclick="window.ngnAdminGoogleLogin()">Continue with Google</button><div class="error" id="loginError"></div>
+<button class="btn gold full" id="googleLoginBtn" type="button">Continue with Google</button><div class="error" id="loginError"></div>
 <p class="muted" style="font-size:12px;margin-top:20px">Private administrator access · NGN Official Website</p>
 </div></div>
 <div id="appView" class="app">
@@ -29,14 +29,15 @@ button,input,textarea,select{font:inherit}button{cursor:pointer}.shell{min-heigh
 <div class="sidebar-bottom"><button class="nav-btn" id="signOutBtn" data-icon="↪">Sign out</button></div></aside>
 <main class="main"><div class="topbar"><div><h1 id="pageTitle">Overview</h1><p>Manage what visitors see on the NGN official website.</p></div><a class="btn ghost" href="/" target="_blank" rel="noopener">View website ↗</a></div><div id="content"></div></main>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 const SUPABASE_URL='https://nlhjxoevyatvxstxgnhs.supabase.co';
 const SUPABASE_KEY='sb_publishable_QiReFPxygdWtOlRy5Eol6Q_uuubGD7j';
 let supabase;
 async function getSupabase(){
  if(supabase)return supabase;
- const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm');
- supabase=createClient(SUPABASE_URL,SUPABASE_KEY);
+ if(!window.supabase||typeof window.supabase.createClient!=='function')throw new Error('The sign-in library did not load. Check your connection and reload this page.');
+ supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
  return supabase;
 }
 const BUCKET='ngn-website-media';
@@ -70,6 +71,7 @@ window.ngnAdminGoogleLogin=async function(){
   btn.disabled=false;
  }
 };
+$('googleLoginBtn').addEventListener('click',window.ngnAdminGoogleLogin);
 $('signOutBtn').addEventListener('click',async()=>{await supabase.auth.signOut();location.reload();});
 document.querySelectorAll('.nav-btn[data-tab]').forEach(b=>b.addEventListener('click',()=>renderTab(b.dataset.tab)));
 async function count(table){const {count,error}=await supabase.from(table).select('*',{count:'exact',head:true});return error?0:(count||0);}
